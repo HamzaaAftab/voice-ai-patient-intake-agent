@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valley Health — Voice AI Clinical Intake Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%3E<text y=%2226%22 font-size=%2226%22>🎙️</text></svg>">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header>
+            <div class="brand">
+                <div class="logo-badge">🎙️</div>
+                <div class="brand-info">
+                    <h1>Valley Health — Voice AI Intake Coordinator</h1>
+                    <p>Clinical Demographics & Real-time Telephony Telemetry</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="status-indicator">
+                    <div class="pulse-dot"></div>
+                    <span>Telephony Voice Agent Live</span>
+                </div>
+                <a href="/docs" target="_blank" class="btn btn-ghost">Swagger API Docs</a>
+                <button onclick="exportDataJSON()" class="btn btn-ghost">Export JSON</button>
+                <button onclick="loadAllData()" class="btn btn-primary">Refresh Data</button>
+            </div>
+        </header>
+
+        <!-- Metric Cards -->
+        <section class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-info">
+                    <h3>Total Registered</h3>
+                    <div class="metric-number" id="metricTotal">0</div>
+                </div>
+                <div class="metric-icon icon-blue">👥</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-info">
+                    <h3>Active Patients</h3>
+                    <div class="metric-number" id="metricActive">0</div>
+                </div>
+                <div class="metric-icon icon-emerald">✅</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-info">
+                    <h3>Soft-Deleted</h3>
+                    <div class="metric-number" id="metricDeleted">0</div>
+                </div>
+                <div class="metric-icon icon-purple">🗑️</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-info">
+                    <h3>Intake Calls Logged</h3>
+                    <div class="metric-number" id="metricCalls">0</div>
+                </div>
+                <div class="metric-icon icon-amber">📞</div>
+            </div>
+        </section>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs-nav">
+            <button class="tab-btn active" data-tab="patients">Patient Directory</button>
+            <button class="tab-btn" data-tab="calls">Call Recordings & Transcripts</button>
+        </div>
+
+        <!-- Patients Section -->
+        <section id="patientsSection" class="content-card">
+            <div class="card-toolbar">
+                <div class="search-box">
+                    <span>🔍</span>
+                    <input type="text" id="searchInput" placeholder="Search by name, phone, city, state, or ZIP...">
+                </div>
+                <div class="filter-group">
+                    <select id="filterStatus" class="filter-select">
+                        <option value="active">Active Only</option>
+                        <option value="all">All Records</option>
+                        <option value="deleted">Soft-Deleted Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Patient Legal Name</th>
+                            <th>Date of Birth</th>
+                            <th>Sex</th>
+                            <th>Phone Number</th>
+                            <th>Residential Address</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patientsTableBody">
+                        <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 32px;">Loading patient records...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Calls & Transcripts Section -->
+        <section id="callsSection" class="content-card" style="display: none;">
+            <div class="card-toolbar">
+                <h2 style="font-size: 16px; font-weight: 700;">Telephony Voice Sessions</h2>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Call Session ID</th>
+                            <th>Caller Number</th>
+                            <th>Linked Patient</th>
+                            <th>Duration</th>
+                            <th>Timestamp</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="callsTableBody">
+                        <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 32px;">Loading call telemetry...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Detail / Transcript Modal -->
+    <div id="detailModal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="font-size: 18px; font-weight: 700;">Record Details</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Action completed successfully.</div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
