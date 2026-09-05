@@ -92,7 +92,7 @@ flowchart TD
 - [x] **Mandatory Read-Back Confirmation:** Reads back all captured demographics and prompts for confirmation or corrections before saving.
 - [x] **REST API Standards:** Standard envelope `{ "data": ..., "error": null }` across all endpoints with full CRUD and soft-deletion.
 
-### Enterprise-Grade Enhancements & Bonus Capabilities
+### Production Grade Enhancements & Bonus Capabilities
 1. **Intelligent Inbound Caller Identification & Duplicate Prevention:** Real-time phone lookup detects returning callers at call start (*"Welcome back, Jane! Would you like to update your details?"*), coupled with a database-level partial unique index preventing duplicate active records.
 2. **Zero-Shot Bilingual Telephony:** Seamlessly detects and transitions the entire clinical intake flow to Spanish upon caller cue (*"Hablo español"*), collecting records with localized error recovery.
 3. **Automated Post-Registration Appointment Scheduling:** Proactively offers and schedules follow-up wellness consultations post-registration, creating correlated appointment records.
