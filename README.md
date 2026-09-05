@@ -4,17 +4,22 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)](https://fastapi.tiangolo.com/)
 [![SQLAlchemy 2.0](https://img.shields.io/badge/SQLAlchemy-2.0+-red.svg)](https://www.sqlalchemy.org/)
 [![Pydantic v2](https://img.shields.io/badge/Pydantic-v2.10+-e92063.svg)](https://docs.pydantic.dev/)
-[![Database](https://img.shields.io/badge/Database-Supabase%20PostgreSQL%20%2F%20SQLite-336791.svg)](https://supabase.com/)
-[![Tests](https://img.shields.io/badge/Tests-15%20Passed%20(100%25)-success.svg)](tests/)
+[![Database](https://img.shields.io/badge/Database-Supabase%20PostgreSQL-336791.svg)](https://supabase.com/)
+[![Tests](https://img.shields.io/badge/Tests-18%20Passed%20(100%25)-success.svg)](tests/)
 
-A Production-grade, real-time telephony and conversational Voice AI system that registers patients over a live U.S. phone number, enforces clinical demographic validation rules, persists records to an ACID-compliant database, and exposes a companion REST API and Executive Web Dashboard.
+A production-grade, real-time telephony and conversational Voice AI system that registers patients over a live U.S. phone number, enforces clinical demographic validation rules, persists records to an ACID-compliant database, and exposes a companion REST API and Executive Web Dashboard.
+
+> [!TIP]
+> **📞 Live Dialable Assessment Hotline:** `+1 (516) 990-9161`  
+> **🌐 Interactive Web Dashboard:** `http://localhost:8000/dashboard`  
+> **📚 Complete OpenAPI / Swagger Docs:** `http://localhost:8000/docs`
 
 ---
 
 ## 📑 Table of Contents
 1. [System Architecture](#system-architecture)
 2. [Tech Stack & Justifications](#tech-stack--justifications)
-3. [Features & Bonus Highlights](#features--bonus-highlights)
+3. [Features & Assessment Highlights](#features--assessment-highlights)
 4. [Live Telephony Setup (Vapi Guide)](#live-telephony-setup-vapi-guide)
 5. [Local Development & Quickstart](#local-development--quickstart)
 6. [API Specification & cURL Examples](#api-specification--curl-examples)
@@ -27,37 +32,37 @@ A Production-grade, real-time telephony and conversational Voice AI system that 
 
 ```mermaid
 flowchart TD
-    Caller([Caller / Interviewer Phone]) <-->|PSTN Phone Call| Telephony[Telephony & Voice Gateway\nVapi / Retell AI]
+    Caller(["Caller / Interviewer Phone"]) <-->|"PSTN Inbound Call"| Telephony["Telephony & Voice Gateway (Vapi)"]
 
-    subgraph VoicePipeline [Sub-800ms Realtime Voice Pipeline]
-        STT[Deepgram Nova-2 STT\n< 250ms Latency]
-        LLM[OpenAI-Compatible LLM\nGroq Llama 3.3 70B / OpenRouter / Ollama]
-        TTS[Cartesia Sonic TTS\nUltra-realistic Voice]
+    subgraph VoicePipeline ["Sub-800ms Real-Time Voice Pipeline"]
+        STT["Deepgram Nova-2 STT (< 250ms)"]
+        LLM["OpenAI-Compatible LLM (Groq / Llama 3.3 70B)"]
+        TTS["Cartesia Sonic TTS (Ultra-Realistic)"]
         STT --> LLM --> TTS
     end
 
     Telephony <--> VoicePipeline
-    Telephony -->|POST /api/v1/webhooks/vapi (Tool Calls)| BackendGateway[FastAPI Application Gateway]
+    Telephony -->|"Webhook Tool Calls"| BackendGateway["FastAPI Application Gateway"]
 
-    subgraph CleanBackend [Python Clean Architecture]
-        Router[REST & Webhook Routers]
-        Validation[Pydantic v2 Validation Layer]
-        Service[Patient & Intake Domain Service]
-        Repo[SQLAlchemy 2.0 Async Repository]
+    subgraph CleanBackend ["Clean Architecture Backend"]
+        Router["REST & Webhook Routers"]
+        Validation["Pydantic v2 Validation Layer"]
+        Service["Patient & Intake Domain Service"]
+        Repo["SQLAlchemy 2.0 Async Repository"]
         Router --> Validation --> Service --> Repo
     end
 
     BackendGateway --> Router
-    Repo <--> DB[(Persistent Cloud PostgreSQL / SQLite)]
+    Repo <--> DB[("Cloud PostgreSQL (Supabase)")]
 
-    Interviewer[Interviewer / Admin] <-->|REST API / Swagger Docs| Router
-    Interviewer <-->|Companion Glassmorphism Dashboard\n/dashboard| Dashboard[Executive Web UI]
+    Interviewer(["Interviewer / Evaluator"]) <-->|"REST API / Swagger Docs"| Router
+    Interviewer <-->|"Companion Dashboard"| Dashboard["Executive Web UI (/dashboard)"]
 ```
 
 ### Key Architectural Traits
 - **Two-Tier Validation:** The conversational LLM prompt enforces slot-level guardrails (e.g. reprompting if birth date is in the future), backed by a deterministic server-side Pydantic v2 validation layer.
 - **Sub-800ms Voice Pipeline:** Integrates Deepgram Nova-2 streaming STT with Cartesia Sonic TTS and ultra-fast LLM inference (e.g. Groq / Llama 3.3 70B).
-- **Zero-Data-Loss Persistence:** Backed by persistent cloud PostgreSQL (Supabase / Neon) and fallback SQLite across server restarts.
+- **Zero-Data-Loss Persistence:** Backed by persistent cloud PostgreSQL (Supabase) with ACID transactions and partial unique indexing for active duplicates.
 - **Audit & Soft-Deletion:** Fully supports healthcare compliance through timestamped soft-deletion (`deleted_at`).
 
 ---
@@ -70,16 +75,16 @@ flowchart TD
 | **Web Framework** | FastAPI | Native ASGI asynchronous performance, automatic OpenAPI documentation, dependency injection. |
 | **Validation** | Pydantic v2 | High-performance Rust core, strict type coercion, comprehensive regex validators. |
 | **Persistence** | SQLAlchemy 2.0 (Async) + `asyncpg` | Enterprise ORM supporting connection pooling, prepared statement management, and dialect portability. |
-| **Database** | Supabase / Neon PostgreSQL | Cloud-hosted ACID compliance, high concurrency, zero data loss on container restarts. |
+| **Database** | Supabase PostgreSQL | Cloud-hosted ACID compliance, high concurrency, zero data loss across container restarts. |
 | **Telephony Gateway** | Vapi | Instant dialable US phone numbers, sub-800ms voice pipeline, built-in interruption handling (barge-in). |
-| **LLM Reasoning** | OpenAI-Compatible Client (Groq / OpenRouter / Ollama) | Free-tier compatible, fast TTFT (< 300ms), zero proprietary vendor lock-in. |
+| **LLM Reasoning** | OpenAI-Compatible Client (Groq / OpenRouter / Ollama) | Fast TTFT (< 300ms), zero proprietary vendor lock-in, dynamic provider flexibility. |
 | **Companion UI** | HTML5 / Modern Glassmorphic CSS / Vanilla JS | Zero build step, served directly from FastAPI at `/dashboard`. |
 
 ---
 
-## 3. Features & Bonus Highlights
+## 3. Features & Assessment Highlights
 
-### Core Capabilities
+### Core Conversational Capabilities
 - [x] **Natural Conversational Intake:** Warm clinical coordinator persona ("Sarah") collecting all 9 required U.S. patient demographics.
 - [x] **Smart Out-of-Order Extraction:** Extracts multiple fields simultaneously without repeating questions.
 - [x] **In-Flight Validation & Error Recovery:** Immediate verbal re-prompting if caller provides future DOB, bad phone, or invalid state.
@@ -87,13 +92,13 @@ flowchart TD
 - [x] **Mandatory Read-Back Confirmation:** Reads back all captured demographics and prompts for confirmation or corrections before saving.
 - [x] **REST API Standards:** Standard envelope `{ "data": ..., "error": null }` across all endpoints with full CRUD and soft-deletion.
 
-### All 6 Bonus Challenges Implemented
-1. **Duplicate Detection:** Inbound caller ID check detects returning callers: *"It looks like we already have a record for Jane Doe. Would you like to update your information instead?"*
-2. **Multi-Language Support:** Seamlessly switches entire conversation and registration to Spanish if caller says *"Hablo español"*.
-3. **Appointment Booking:** Offers and schedules first wellness visit post-registration.
-4. **Call Recording & Transcript Linking:** Post-call webhook automatically links audio recording URL and full verbatim transcript to the patient profile.
-5. **Companion Executive Dashboard:** Modern glassmorphism UI at `/dashboard` displaying real-time patient directory, search, metrics, and call transcripts.
-6. **Comprehensive Automated Test Suite:** 15 unit and integration tests covering REST CRUD, input validation, soft deletion, and webhook tool calls.
+### Enterprise-Grade Enhancements & Bonus Capabilities
+1. **Intelligent Inbound Caller Identification & Duplicate Prevention:** Real-time phone lookup detects returning callers at call start (*"Welcome back, Jane! Would you like to update your details?"*), coupled with a database-level partial unique index preventing duplicate active records.
+2. **Zero-Shot Bilingual Telephony:** Seamlessly detects and transitions the entire clinical intake flow to Spanish upon caller cue (*"Hablo español"*), collecting records with localized error recovery.
+3. **Automated Post-Registration Appointment Scheduling:** Proactively offers and schedules follow-up wellness consultations post-registration, creating correlated appointment records.
+4. **End-to-End Telephony Audit & Call Linking:** Automatically captures post-call recordings and verbatim transcripts, resolving and linking caller metadata directly to the persistent patient record.
+5. **Real-Time Executive Companion Dashboard:** Glassmorphic clinical administration portal at `/dashboard` featuring search, demographic badges, audio playback, verbatim transcript inspection, and JSON exports.
+6. **Robust Deterministic Test Suite:** 18 passing unit and integration tests covering REST CRUD operations, Pydantic schemas, edge-case validation, 409 conflict handling, and webhook execution.
 
 ---
 
@@ -112,10 +117,10 @@ flowchart TD
    - Under **Transcriber**: Deepgram Nova-2 (English / Multi).
 4. **Attach Custom Tools:**
    - Copy tool definitions from [`app/prompts/tool_definitions.json`](file:///app/prompts/tool_definitions.json).
-   - Set **Server URL** to your public webhook endpoint (e.g. `https://<your-domain>.com/webhooks/vapi` or via ngrok: `https://xxxx.ngrok-free.app/webhooks/vapi`).
+   - Set **Server URL** to your public webhook endpoint (e.g. `https://<your-domain>.com/webhooks/vapi`).
 5. **Link Number to Assistant:**
    - Under **Phone Numbers**, assign the phone number to your Assistant.
-   - Dial the number and start talking!
+   - Dial `+1 (516) 990-9161` and start talking!
 
 ---
 
@@ -128,8 +133,8 @@ flowchart TD
 ### Installation
 ```bash
 # 1. Clone repository
-git clone <your-repo-url>
-cd voice-agent-technical-assessment
+git clone https://github.com/HamzaaAftab/voice-ai-patient-intake-agent.git
+cd voice-ai-patient-intake-agent
 
 # 2. Create virtual environment
 python -m venv .venv
