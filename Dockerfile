@@ -1,17 +1,18 @@
 # ==============================================================================
 # Voice AI Patient Registration System — Production Container Image
+# Compatible with Hugging Face Spaces, Koyeb, Render, and Local Docker
 # ==============================================================================
 
-FROM python:3.12-slim AS base
+FROM python:3.12-slim
 
 # Prevent Python from writing .pyc files and buffer stdout/stderr
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PORT=8000
-
-WORKDIR /app
+    PORT=7860 \
+    HOME=/home/user \
+    PATH=/home/user/.local/bin:$PATH
 
 # Install system dependencies (curl for health checks, gcc/python3-dev for native C extensions like asyncpg)
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -20,23 +21,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Create non-root system user (UID 1000 for Hugging Face Spaces compliance)
+RUN useradd -m -u 1000 user
+WORKDIR /home/user/app
+
 # Install python dependencies
-COPY requirements.txt .
+COPY --chown=user:user requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application source code (filtered by .dockerignore)
-COPY . .
+COPY --chown=user:user . .
 
-# Create non-root system user for security compliance
-RUN useradd -m -u 1000 appuser && \
-    chown -R appuser:appuser /app
-USER appuser
+USER user
 
-EXPOSE 8000
+EXPOSE 7860
 
 # Health check probe using dynamic PORT with fallback
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
+    CMD curl -f http://localhost:${PORT:-7860}/health || exit 1
 
-# Production ASGI server entrypoint with dynamic PORT support for Koyeb, Render, Railway, and Cloud Run
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 2"]
+# Production ASGI server entrypoint with dynamic PORT support for Hugging Face Spaces (7860) & Cloud
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860} --workers 2"]

@@ -1,3 +1,12 @@
+---
+title: Voice AI Patient Intake Agent
+emoji: 🎙️
+colorFrom: indigo
+colorTo: purple
+sdk: docker
+app_port: 7860
+---
+
 # Voice AI Patient Registration System
 
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/downloads/)
