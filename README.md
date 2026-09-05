@@ -21,8 +21,8 @@ A production-grade, real-time telephony and conversational Voice AI system that 
 
 > [!TIP]
 > **📞 Live Dialable Assessment Hotline:** `+1 (516) 990-9161`  
-> **🌐 Interactive Web Dashboard:** `http://localhost:8000/dashboard`  
-> **📚 Complete OpenAPI / Swagger Docs:** `http://localhost:8000/docs`
+> **🌐 Interactive Web Dashboard:** `https://voice-ai-agent-backend-95f7b.containers.snapdeploy.app/dashboard`  
+> **📚 Complete OpenAPI / Swagger Docs:** `https://voice-ai-agent-backend-95f7b.containers.snapdeploy.app/docs`
 
 ---
 
