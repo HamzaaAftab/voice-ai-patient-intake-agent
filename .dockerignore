@@ -1,0 +1,35 @@
+# Git
+.git
+.gitignore
+
+# Python virtual environments & bytecode
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local Environment Secrets (never bake .env into image)
+.env
+.env.*
+!.env.example
+
+# Local SQLite databases / logs
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
